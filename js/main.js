@@ -1,9 +1,10 @@
-import { GAME_STATUS, PAIRS_COUNT } from './constants.js'
+import { GAME_STATUS, GAME_TIME, PAIRS_COUNT } from './constants.js'
 import {
+  createTimer,
   getRandomColorPairs,
   hideReplayAgainButton,
   setTimerText,
-  showReplayAgainButton,
+  showPlayAgainButton,
 } from './utils.js'
 import {
   getColorElementList,
@@ -14,6 +15,26 @@ import {
 // Global variables
 let selections = []
 let gameStatus = GAME_STATUS.PLAYING
+let timer = createTimer({
+  seconds: GAME_TIME,
+  onChange: handleTimerChange,
+  onFinish: handleTimerFinish,
+})
+
+function handleTimerChange(second) {
+  console.log('change', second)
+  const fullSecond = `0${second}`.slice(-2)
+  setTimerText(fullSecond)
+}
+
+function handleTimerFinish() {
+  console.log('finished')
+  // end game
+  gameStatus = GAME_STATUS.FINISHED
+
+  setTimerText('Game Over')
+  showPlayAgainButton()
+}
 
 // TODOs
 // 1. Generating colors using https://github.com/davidmerfield/randomColor
@@ -48,10 +69,12 @@ function handleColorClick(liElement) {
     const isWin = getInActiveColorList().length === 0
     if (isWin) {
       // show replay
-      showReplayAgainButton()
+      showPlayAgainButton()
       // show You win
       setTimerText('YOU WIN')
       // update game status
+
+      timer.clear()
       gameStatus = GAME_STATUS.FINISHED
     }
 
@@ -70,7 +93,10 @@ function handleColorClick(liElement) {
     // reset selections for the next turn
     selections = []
 
-    gameStatus = GAME_STATUS.PLAYING
+    // race-condition check with handleTimerFinish
+    if (gameStatus !== GAME_STATUS.FINISHED) {
+      gameStatus = GAME_STATUS.PLAYING
+    }
   }, 500)
 }
 
@@ -117,6 +143,9 @@ function resetGame() {
 
   // re-generate new colors
   initColors()
+
+  // start new game
+  startTimer()
 }
 
 function attachEventForPlayAgainButton() {
@@ -126,10 +155,15 @@ function attachEventForPlayAgainButton() {
   playAgainButton.addEventListener('click', resetGame)
 }
 
+function startTimer() {
+  timer.start()
+}
+
 // main
 ;(() => {
   initColors()
 
   attachEventForColorList()
   attachEventForPlayAgainButton()
+  startTimer()
 })()

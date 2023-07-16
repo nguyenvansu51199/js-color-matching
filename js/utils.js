@@ -49,7 +49,7 @@ export const getRandomColorPairs = (count) => {
 // console.log(cloneArray)
 // [1, 2, 3, [1, 2, 3]]
 
-export function showReplayAgainButton() {
+export function showPlayAgainButton() {
   const playAgainButton = getPlayAgainButton()
   if (playAgainButton) playAgainButton.classList.add('show')
 }
@@ -62,4 +62,36 @@ export function hideReplayAgainButton() {
 export function setTimerText(text) {
   const timerELement = getTimerElement()
   if (timerELement) timerELement.textContent = text
+}
+
+export function createTimer({ seconds, onChange, onFinish }) {
+  let intervarId = null
+
+  function start() {
+    clear()
+
+    let currentSecond = seconds
+
+    intervarId = setInterval(() => {
+      // if (onChange) onChange(currentSecond)
+      onChange?.(currentSecond)
+
+      currentSecond--
+
+      if (currentSecond < 0) {
+        clear()
+
+        onFinish?.()
+      }
+    }, 1000)
+  }
+
+  function clear() {
+    clearInterval(intervarId)
+  }
+
+  return {
+    start,
+    clear,
+  }
 }
