@@ -7,6 +7,7 @@ import {
   showPlayAgainButton,
 } from './utils.js'
 import {
+  getColorBackground,
   getColorElementList,
   getColorListElement,
   getInActiveColorList,
@@ -34,6 +35,13 @@ function handleTimerFinish() {
 
   setTimerText('Game Over')
   showPlayAgainButton()
+}
+
+function changeBackgroundColor(color) {
+  const colorBackgroundElement = getColorBackground()
+  if (colorBackgroundElement) {
+    colorBackgroundElement.style.backgroundColor = color
+  }
 }
 
 // TODOs
@@ -77,7 +85,7 @@ function handleColorClick(liElement) {
       timer.clear()
       gameStatus = GAME_STATUS.FINISHED
     }
-
+    changeBackgroundColor(firstColor)
     selections = []
     return
   }
@@ -146,6 +154,10 @@ function resetGame() {
 
   // start new game
   startTimer()
+
+  // reset backgroundColor
+  const currentColor = `#daa520`
+  changeBackgroundColor(currentColor)
 }
 
 function attachEventForPlayAgainButton() {
